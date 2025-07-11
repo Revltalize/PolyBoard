@@ -1043,6 +1043,11 @@ namespace Stirling
         f.resize(__n + 1);
         return f;
     }
+
+    inline poly column(int __n)
+    {
+        
+    }
 }
 
 int n;
