@@ -1,6 +1,6 @@
 /*
 
-POLYBOARD (1.1.0)
+POLYBOARD (1.2.0)
 _____________________________________________
 |                                            |
 |  AUTHER   : Revitalize                     |
@@ -49,15 +49,15 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Exp ---------------------- Get Power of e
     | Sqrt --------------------- Get Sqrt
 
+Update:
+Fraction and Mod.
 
-Update: Faster Inv.
 
 
 
 */
 
 #include <bits/stdc++.h>
-#define int long long
 using namespace std;
 namespace IO
 {
@@ -66,15 +66,15 @@ namespace IO
     int __f, qr, _eof;
 #define Gc() (iS == iT ? (iT = (iS = ibuf) + fread(ibuf, 1, __SIZE, stdin), (iS == iT ? EOF : *iS++)) : *iS++)
 
-    inline void flush()
+    inline void flush() 
     {
         fwrite(obuf, 1, oS - obuf, stdout);
         oS = obuf;
     }
 
-    inline void gc(char &x)
-    {
-        x = Gc();
+    inline void gc(char &x) 
+    { 
+        x = Gc(); 
     }
 
     inline void pc(char x)
@@ -92,7 +92,7 @@ namespace IO
         for (__f = 0; __f < __len; ++__f)
         {
             pc(s[__f]);
-        }
+        }   
     }
 
     inline void gstr(char *s)
@@ -117,7 +117,7 @@ namespace IO
             if (_c == '-')
             {
                 __f = -1;
-            }
+            }    
             _eof |= _c == EOF;
         }
         for (x = 0; _c <= '9' && _c >= '0' && !_eof; _c = Gc())
@@ -138,7 +138,7 @@ namespace IO
         if (x < 0)
         {
             pc('-');
-            x = -x;
+             x = -x;
         }
         while (x)
         {
@@ -148,6 +148,7 @@ namespace IO
         {
             pc(qu[qr--]);
         }
+            
     }
 
     struct Flusher_
@@ -184,6 +185,10 @@ namespace Pre
 
     inline int Inv(int __x)
     {
+        if(__x <= 500000 )
+        {
+            return ny[__x];
+        }
         return Q(__x, P - 2);
     }
 
@@ -226,7 +231,7 @@ namespace Pre
 
 namespace Pint
 {
-    template <class T>
+    template<class T>
     inline T addt(T &__a, T __b)
     {
         if ((__a += __b) >= P)
@@ -236,7 +241,7 @@ namespace Pint
         return __a;
     }
 
-    template <class T>
+    template<class T>
     inline T delt(T &__a, T __b)
     {
         if ((__a -= __b) < 0)
@@ -246,19 +251,19 @@ namespace Pint
         return __a;
     }
 
-    template <class T>
+    template<class T>
     inline T add(T __a, T __b)
     {
         return addt(__a, __b);
     }
 
-    template <class T>
+    template<class T>
     inline T del(T __a, T __b)
     {
         return delt(__a, __b);
     }
 
-    inline int tp(int x)
+    inline int tp(int &x)
     {
         if (x < 0)
         {
@@ -374,35 +379,35 @@ namespace POLY
     public:
         int n;
         vector<int> a;
-        poly()
+        poly() 
         {
             n = 0;
         }
-        poly(int __n)
+        poly(int __n) 
         {
-            resize(__n);
+             resize(__n); 
         }
 
-        int &operator[](int id)
-        {
-            return a[id];
+        int &operator[](int id) 
+        { 
+            return a[id]; 
         }
 
-        inline void resize(int __lim_siz)
+        inline void resize(int __lim_siz) 
         {
             a.resize(__lim_siz);
             a.shrink_to_fit();
             n = __lim_siz;
         }
 
-        inline void shrink()
-        {
-            resize(n);
+        inline void shrink() 
+        { 
+            resize(n); 
         }
 
-        inline void rev(int __st, int __len)
-        {
-            reverse(a.begin() + __st, a.begin() + __st + __len);
+        inline void rev(vector<int>::iterator __st, vector<int>::iterator __en) 
+        { 
+            reverse(__st,__en); 
         }
 
         inline void pb(int x)
@@ -416,23 +421,7 @@ namespace POLY
             for (register int i = 0; i < __n; ++i)
             {
                 Pint::tp(a[i]);
-            }
-        }
-
-        inline poly prefix(int __n)
-        {
-            poly ans;
-            for (int i = 0; i < __n; i++)
-                ans.pb((__n < n) ? a[i] : 0);
-            return ans;
-        }
-
-        inline poly modfix(int __n)
-        {
-            poly ans;
-            for (int i = __n; i < n; i++)
-                ans.pb(a[i]);
-            return ans;
+            } 
         }
 
         poly operator+=(const poly &__tmpa)
@@ -472,6 +461,7 @@ namespace POLY
     private:
         inline void NTT(bool __)
         {
+            
             for (register int i = 0; i < n; ++i)
             {
                 if (i < __Binary_reverse[i])
@@ -539,7 +529,7 @@ namespace POLY
             return *this;
         }
 
-        template <class T>
+        template<class T>
         poly operator*(const T &__tmpa) const
         {
             poly ans = *this;
@@ -580,52 +570,46 @@ namespace POLY
 
         poly operator~() const
         {
-            poly __f = *this, __tmpf;
-
+            poly __f = *this;
             int cst = __f.a[0];
-            int L = 0;
+            int len = 1, L = 0;
+            while (len < (n << 1))
+            {
+                len <<= 1;
+                L++;
+            }
+            for (register int i = 0; i < len; ++i)
+            {
+                __Binary_reverse[i] = (__Binary_reverse[i >> 1] >> 1) | ((i & 1) << (L - 1));
+            }
+            __f.resize(len);
+            __f.NTT(1);
             poly ans;
             int dep = 1;
             ans.pb(Pre::Inv(cst));
-            while (dep < (n << 1))
+            while (dep < n)
             {
-                ++L;
-                for (register int i = 1; i < (dep << 1); ++i)
-                {
-                    __Binary_reverse[i] = (__Binary_reverse[i >> 1] >> 1) | ((i & 1) << (L - 1));
-                }
-                __tmpf.a.clear();
-                __tmpf = *this;
-                __tmpf.resize(dep);
-                __tmpf.resize(dep << 1);
-                
-                if(dep!=1) ans.resize(dep>>1);
-                //ppri(ans, dep);
-                //pc('-'), pc('-'), pc('-'), pc('-'), pc('-'), pc('-'), pc('-'), pc('-'), pc('-'), pc('\n');
-                ans.resize(dep << 1);
-                __tmpf.NTT(1);
+                ans.resize(len);
                 ans.NTT(1);
-                for (register int i = 0; i < (dep << 1); ++i)
-                    ans[i] = 1ll * ans[i] * Pint::tp(2ll - 1ll * __tmpf[i] * ans[i] % P + P) % P;
+                for (register int i = 0; i < len; ++i)
+                    ans[i] = 1ll * ans[i] * (2ll - 1ll * __f[i] * ans[i] % P + P) % P;
                 ans.NTT(0);
-                
-                ans.resize(dep << 1);
-                // ppri(__tmpf, dep << 1);
                 ans.tp(ans.n);
+                ans.resize(dep << 1);
                 dep <<= 1;
             }
-            ans.resize(n);
+            ans.resize(__f.n);
             return ans;
         }
 
         poly operator/=(poly g)
         {
-            rev(0, n);
-            g.rev(0, g.n);
+            rev(a.begin(), a.end());
+            g.rev(g.a.begin(), g.a.end());
             int m = g.n;
             g.resize(n - m + 1);
             poly q = ~g * *this;
-            q.rev(0, n - m);
+            q.rev(q.a.begin(),q.a.begin() + n - m + 1);
             return q;
         }
 
@@ -648,10 +632,15 @@ namespace POLY
 
         poly operator%=(poly g) const
         {
-            g.rev(0, g.n);
             poly q = *this / g;
             q.resize(n - g.n + 1);
             return *this - q * g;
+        }
+
+        poly operator%(poly g) const
+        {
+            poly res = *this;
+            return res %= g;
         }
     };
 }
@@ -671,6 +660,7 @@ void PIO::pin(poly &f, int __n)
 void PIO::ppri(poly __f, int __n)
 {
     __f.tp(__f.n);
+    __f.resize(__n);
     for (register int i = 0; i < __n; ++i)
     {
         print(__f[i]);
@@ -738,21 +728,24 @@ namespace UCPF // UnClassable PolyFunctions
     }
 }
 
-int n;
+
+int n, m;
 
 inline void work()
 {
-    poly f, g;
+    poly f,g;
     read(n);
-    pin(f, n);
-    g = ~f;
-    ppri(g, n);
+    read(m);
+    pin(f, n+1);
+    pin(g, m+1);
+    ppri(f / g, n-m+1);
+    ppri(f % g, m);
 }
 
 signed main()
 {
-    // ios::sync_with_stdio(false);
-    // cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
     Pre::initYG();
     work();
     return 0;
