@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Sqrt
+Sqrt and Pow and Tri.
 
 
 
@@ -66,15 +66,15 @@ namespace IO
     int __f, qr, _eof;
 #define Gc() (iS == iT ? (iT = (iS = ibuf) + fread(ibuf, 1, __SIZE, stdin), (iS == iT ? EOF : *iS++)) : *iS++)
 
-    inline void flush() 
+    inline void flush()
     {
         fwrite(obuf, 1, oS - obuf, stdout);
         oS = obuf;
     }
 
-    inline void gc(char &x) 
-    { 
-        x = Gc(); 
+    inline void gc(char &x)
+    {
+        x = Gc();
     }
 
     inline void pc(char x)
@@ -92,7 +92,7 @@ namespace IO
         for (__f = 0; __f < __len; ++__f)
         {
             pc(s[__f]);
-        }   
+        }
     }
 
     inline void gstr(char *s)
@@ -117,7 +117,7 @@ namespace IO
             if (_c == '-')
             {
                 __f = -1;
-            }    
+            }
             _eof |= _c == EOF;
         }
         for (x = 0; _c <= '9' && _c >= '0' && !_eof; _c = Gc())
@@ -138,7 +138,7 @@ namespace IO
         if (x < 0)
         {
             pc('-');
-             x = -x;
+            x = -x;
         }
         while (x)
         {
@@ -148,7 +148,6 @@ namespace IO
         {
             pc(qu[qr--]);
         }
-            
     }
 
     struct Flusher_
@@ -163,7 +162,7 @@ using IO::print;
 using IO::pstr;
 using IO::read;
 
-const constexpr int P = 998244353, Y = 3, I = 332748118, B = (P + 1) >> 1, N = 600005;
+const constexpr int P = 998244353, Y = 3, I = 332748118, B = (P + 1) >> 1, N = 600005, _I_=86583718;
 
 namespace Pre
 {
@@ -185,7 +184,7 @@ namespace Pre
 
     inline int Inv(int __x)
     {
-        if(__x <= 500000 )
+        if (__x <= 500000)
         {
             return ny[__x];
         }
@@ -231,7 +230,7 @@ namespace Pre
 
 namespace Pint
 {
-    template<class T>
+    template <class T>
     inline T addt(T &__a, T __b)
     {
         if ((__a += __b) >= P)
@@ -241,7 +240,7 @@ namespace Pint
         return __a;
     }
 
-    template<class T>
+    template <class T>
     inline T delt(T &__a, T __b)
     {
         if ((__a -= __b) < 0)
@@ -251,19 +250,19 @@ namespace Pint
         return __a;
     }
 
-    template<class T>
+    template <class T>
     inline T add(T __a, T __b)
     {
         return addt(__a, __b);
     }
 
-    template<class T>
+    template <class T>
     inline T del(T __a, T __b)
     {
         return delt(__a, __b);
     }
 
-    inline int tp(int &x)
+    inline int tp(int x)
     {
         if (x < 0)
         {
@@ -280,24 +279,22 @@ namespace Pint
 }
 
 using namespace Pint;
-
+mt19937 rnd(time(0));
 namespace Quad
 {
-    int t, n, p, ii;
-    mt19937 rnd(time(0));
-
+    int t, n, p=998244353, ii;
+    
     struct NTC
     {
         int Re, Im;
-        NTC operator*(const NTC &__A) const
+        NTC operator*(NTC __A) const
         {
             NTC __res;
-            __res.Re = (Re * __A.Re % p + ii * Im % p * __A.Im % p + p) % p;
-            __res.Im = (Re * __A.Im % p + Im * __A.Re % p + p) % p;
+            __res.Re = (1ll * Re * __A.Re % p + 1ll * ii * Im % p * __A.Im % p + p) % p;
+            __res.Im = (1ll * Re * __A.Im % p + 1ll * Im * __A.Re % p + p) % p;
             return __res;
         }
     };
-
     inline int Q(int __a, int __b, int __p)
     {
         int __res = 1;
@@ -312,22 +309,24 @@ namespace Quad
         }
         return __res % __p;
     }
-
-    inline NTC q(NTC __a, int __b, int __p)
+    
+    inline NTC q(NTC __a, int __b, int &__p)
     {
         NTC __res = {1, 0};
         while (__b)
         {
             if (__b & 1)
+            {
                 __res = __res * __a;
+            }
             __a = __a * __a;
             __b >>= 1;
         }
         return __res;
     }
-
     inline int Cipolla(int n, int p)
     {
+        p = 998244353;
         n %= p;
         if (Q(n, (p - 1) >> 1, p) == p - 1)
             return -1;
@@ -335,14 +334,13 @@ namespace Quad
         while (true)
         {
             a = rnd() % p;
-            ii = ((a * a % p - n) % p + p) % p;
-            if (Q(ii, (p - 1) >> 1, p) == p - 1)
+            ii = ((1ll * a * a % p - n + p) % p + p) % p;
+            if (Q(ii, (p - 1) >> 1, 998244353) == p - 1)
                 break;
         }
         NTC x = {a, 1};
-        return (q(x, (p + 1) >> 1, p).Re % p + p) % p;
+        return (q(x, B, p).Re % p + p) % p;
     }
-
     inline int work(int n, int p)
     {
         if (!n)
@@ -372,6 +370,17 @@ namespace POLY
         void pin(poly &f, int __n);
         void ppri(poly __f, int __n);
     }
+
+    namespace UCPF
+    {
+        inline poly Ln(poly __f);
+        inline poly Exp(poly __f);
+        inline poly Sqrt(poly __f);
+        inline poly Sin(poly __f);
+        inline poly Cos(poly __f);
+        inline poly Tan(poly __f);
+    }
+    using namespace UCPF;
     using namespace PIO;
 
     class poly
@@ -379,35 +388,35 @@ namespace POLY
     public:
         int n;
         vector<int> a;
-        poly() 
+        poly()
         {
             n = 0;
         }
-        poly(int __n) 
+        poly(int __n)
         {
-             resize(__n); 
+            resize(__n);
         }
 
-        int &operator[](int id) 
-        { 
-            return a[id]; 
+        int &operator[](int id)
+        {
+            return a[id];
         }
 
-        inline void resize(int __lim_siz) 
+        inline void resize(int __lim_siz)
         {
             a.resize(__lim_siz);
             a.shrink_to_fit();
             n = __lim_siz;
         }
 
-        inline void shrink() 
-        { 
-            resize(n); 
+        inline void shrink()
+        {
+            resize(n);
         }
 
-        inline void rev(vector<int>::iterator __st, vector<int>::iterator __en) 
-        { 
-            reverse(__st,__en); 
+        inline void rev(vector<int>::iterator __st, vector<int>::iterator __en)
+        {
+            reverse(__st, __en);
         }
 
         inline void pb(int x)
@@ -421,7 +430,7 @@ namespace POLY
             for (register int i = 0; i < __n; ++i)
             {
                 Pint::tp(a[i]);
-            } 
+            }
         }
 
         poly operator+=(const poly &__tmpa)
@@ -526,7 +535,7 @@ namespace POLY
             return *this;
         }
 
-        template<class T>
+        template <class T>
         poly operator*(const T &__tmpa) const
         {
             poly ans = *this;
@@ -567,35 +576,40 @@ namespace POLY
 
         poly operator~() const
         {
-            poly __f = *this;
+            poly __f = *this, __tmpf;
             int cst = __f.a[0];
-            int len = 1, L = 0;
-            while (len < (n << 1))
-            {
-                len <<= 1;
-                L++;
-            }
-            for (register int i = 0; i < len; ++i)
-            {
-                __Binary_reverse[i] = (__Binary_reverse[i >> 1] >> 1) | ((i & 1) << (L - 1));
-            }
-            __f.resize(len);
-            __f.NTT(1);
+            int L = 0;
             poly ans;
             int dep = 1;
             ans.pb(Pre::Inv(cst));
-            while (dep < n)
+            while (dep < (n << 1))
             {
-                ans.resize(len);
-                ans.NTT(1);
-                for (register int i = 0; i < len; ++i)
-                    ans[i] = 1ll * ans[i] * (2ll - 1ll * __f[i] * ans[i] % P + P) % P;
-                ans.NTT(0);
-                ans.tp(ans.n);
+                ++L;
+                for (register int i = 1; i < (dep << 1); ++i)
+                {
+                    __Binary_reverse[i] = (__Binary_reverse[i >> 1] >> 1) | ((i & 1) << (L - 1));
+                }
+                __tmpf.a.clear();
+                __tmpf = *this;
+                __tmpf.resize(dep);
+                __tmpf.resize(dep << 1);
+                if (dep != 1)
+                {
+                    ans.resize(dep >> 1);
+                }
                 ans.resize(dep << 1);
+                __tmpf.NTT(1);
+                ans.NTT(1);
+                for (register int i = 0; i < (dep << 1); ++i)
+                {
+                    ans[i] = 1ll * ans[i] * Pint::tp(2ll - 1ll * __tmpf[i] * ans[i] % P + P) % P;
+                }
+                ans.NTT(0);
+                ans.resize(dep << 1);
+                ans.tp(ans.n);
                 dep <<= 1;
             }
-            ans.resize(__f.n);
+            ans.resize(n);
             return ans;
         }
 
@@ -606,7 +620,7 @@ namespace POLY
             int m = g.n;
             g.resize(n - m + 1);
             poly q = ~g * *this;
-            q.rev(q.a.begin(),q.a.begin() + n - m + 1);
+            q.rev(q.a.begin(), q.a.begin() + n - m + 1);
             return q;
         }
 
@@ -639,10 +653,101 @@ namespace POLY
             poly res = *this;
             return res %= g;
         }
+
+        poly operator^=(int g) 
+        {
+            *this = Ln(*this);
+            *this *= g;
+            *this = Exp(*this);
+            return *this;
+        }
+
+        poly operator^(int g) const
+        {
+            poly res=*this;
+            return res ^= g;
+        }
     };
 }
 
 using namespace POLY;
+inline poly Dx(poly &__f)
+{
+    poly ans;
+    for (register int i = 1; i < __f.n; ++i)
+    {
+        ans.pb(1ll * i * __f[i] % P);
+    }
+    return ans;
+}
+
+inline poly Integ(poly &__f)
+{
+    poly ans;
+    ans.pb(0);
+    for (register int i = 0; i < __f.n; ++i)
+    {
+        ans.a.push_back(1ll * Pre::ny[i + 1] * __f.a[i] % P);
+    }
+    return ans;
+}
+
+inline poly UCPF::Ln(poly __F)
+{
+    poly dF = Dx(__F);
+    dF *= ~__F;
+    dF.resize(__F.n);
+    dF = Integ(dF);
+    dF.resize(__F.n);
+    return dF;
+}
+
+inline poly UCPF::Exp(poly __f)
+{
+    poly ans;
+    int dep = 1;
+    ans.pb(1);
+    poly lnf, tmpff;
+    while (dep < __f.n << 1)
+    {
+        lnf = Ln(ans);
+        lnf = __f - lnf;
+        lnf.resize(dep << 1);
+        ++lnf.a[0];
+        ans *= lnf;
+        ans.resize(dep << 1);
+        dep <<= 1;
+    }
+    ans.resize(__f.n);
+    return ans;
+}
+
+inline poly UCPF::Sqrt(poly __f)
+{
+    int tmp = __f[0];
+    __f *= Pre::Inv(__f[0]);
+    __f = Ln(__f);
+    __f *= B;
+    __f = Exp(__f);
+    tmp = Quad::work(tmp, 998244353);
+    __f *= tmp;
+    return __f;
+}
+
+inline poly UCPF::Sin(poly __f)
+{
+    return (Exp(__f * _I_) - Exp(__f * (P - _I_)))*B*Pre::Inv(_I_);
+}
+
+inline poly UCPF::Cos(poly __f)
+{
+    return (Exp(__f * _I_) + Exp(__f * (P - _I_))) * B;
+}
+
+inline poly UCPF::Tan(poly __f)
+{
+    return Sin(__f) * ~Cos(__f);
+}
 
 void PIO::pin(poly &f, int __n)
 {
@@ -666,97 +771,7 @@ void PIO::ppri(poly __f, int __n)
     pc('\n');
 }
 
-namespace UCPF // UnClassable PolyFunctions
-{
-    inline poly Dx(poly &__f)
-    {
-        poly ans;
-        for (register int i = 1; i < __f.n; ++i)
-        {
-            ans.pb(1ll * i * __f[i] % P);
-        }
-        return ans;
-    }
 
-    inline poly Integ(poly &__f)
-    {
-        poly ans;
-        ans.pb(0);
-        for (register int i = 0; i < __f.n; ++i)
-        {
-            ans.a.push_back(1ll * Pre::ny[i + 1] * __f.a[i] % P);
-        }
-        return ans;
-    }
-
-    inline poly Ln(poly &__F)
-    {
-        poly dF = Dx(__F);
-        dF *= ~__F;
-        dF.resize(__F.n);
-        dF = Integ(dF);
-        dF.resize(__F.n);
-        return dF;
-    }
-
-    inline poly Exp(poly __f)
-    {
-        poly ans;
-        int dep = 1;
-        ans.pb(1);
-        poly lnf, tmpff;
-        while (dep < __f.n << 1)
-        {
-            lnf = Ln(ans);
-            lnf = __f - lnf;
-            lnf.resize(dep << 1);
-            ++lnf.a[0];
-            ans *= lnf;
-            ans.resize(dep << 1);
-            dep <<= 1;
-        }
-        ans.resize(__f.n);
-        return ans;
-    }
-
-    inline poly Sqrt_slow(poly __f)
-    {
-        return Exp(Ln(__f) * B);
-    }
-    inline poly Sqrt(poly __f){
-        int cst = __f.a[0];
-
-        poly ans;
-        int dep = 1;
-        ans.pb(Quad::work(cst,P));
-        while (dep < __f.n)
-        {       
-            int len = 1, L = 0;
-            while (len < (__f.n << 1))
-            {
-                len <<= 1;
-                L++;
-            }
-            for (register int i = 0; i < len; ++i)
-            {
-                __Binary_reverse[i] = (__Binary_reverse[i >> 1] >> 1) | ((i & 1) << (L - 1));
-            }
-            __f.resize(len);
-            __f.NTT(1);
-            ans.resize(len);
-            ans.NTT(1);
-            for (register int i = 0; i < len; ++i)
-                ans[i] = 1ll * ans[i] * (2ll - 1ll * __f[i] * ans[i] % P + P) % P;
-            ans.NTT(0);
-            ans.tp(ans.n);
-            ans.resize(dep << 1);
-            dep <<= 1;
-        }
-        ans.resize(__f.n);
-        return ans;
-    }
-}
-using namespace UCPF;
 
 int n, m;
 
@@ -764,14 +779,14 @@ inline void work()
 {
     poly f;
     read(n);
+    read(m);
     pin(f, n);
-    ppri(Sqrt(f), n);
+    ppri(m?Cos(f):Sin(f), n);
 }
-
 signed main()
 {
-    ios::sync_with_stdio(false);
-    cin.tie(0), cout.tie(0);
+    //ios::sync_with_stdio(false);
+    //cin.tie(0), cout.tie(0);
     Pre::initYG();
     work();
     return 0;
