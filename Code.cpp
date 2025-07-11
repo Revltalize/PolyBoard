@@ -1,6 +1,6 @@
 /*
 
-POLYBOARD (1.5.0)
+POLYBOARD (1.7.0)
 _____________________________________________
 |                                            |
 |  AUTHER   : Revitalize                     |
@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-ARCTri.
+Duodian Chazhi
 
 
 
@@ -841,7 +841,7 @@ namespace Multipoint_Evel
         multipoint_evel(mid + 1, r, p << 1 | 1, r2);
     }
 
-    void PMPE(int *val, poly __f, int mm, int *ans)
+    inline void PMPE(int *val, poly __f, int mm, int *ans)
     {
         int con = __f[0];
         int lm = mm, nn = __f.n;
@@ -852,7 +852,7 @@ namespace Multipoint_Evel
         else if (nn >= mm - 1)
         {
             mm = Vmax(mm, nn - 1);
-        }   
+        }
         build(1, mm, 1, val);
         __f.rev(__f.a.begin(), __f.a.end());
         __f.resize(nn << 1);
@@ -865,26 +865,75 @@ namespace Multipoint_Evel
         }
     }
 }
-using namespace Multipoint_Evel;
+using Multipoint_Evel::PMPE;
 
-int n, m, a[N], Ans[N];
+namespace Fast_Interpolation
+{
+    poly q[N << 2], ret[N << 2];
+    int a[N];
+    void build1(int l, int r, int p, int *x)
+    {
+        if (l == r)
+        {
+            q[p].pb(P - x[l]);
+            q[p].pb(1ll);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        build1(l, mid, p << 1, x);
+        build1(mid + 1, r, p << 1 | 1, x);
+        q[p] = q[p << 1] * q[p << 1 | 1];
+    }
+
+    void Inv_evel(int l, int r, int p)
+    {
+        if (l == r)
+        {
+            ret[p].pb(a[l]);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        Inv_evel(l, mid, p << 1);
+        Inv_evel(mid + 1, r, p << 1 | 1);
+        ret[p] = ret[p << 1] * q[p << 1 | 1] + ret[p << 1 | 1] * q[p << 1];
+    }
+
+    inline poly PFI(int *x, int *y, int __n)
+    {
+        build1(1, __n, 1, x);
+        poly F = Dx(q[1]);
+        int con = F[0];
+        F.resize(__n + 1);
+        Multipoint_Evel::build(1, __n, 1, x);
+        F.rev(F.a.begin(), F.a.end());
+        F.resize(__n << 1);
+        poly tmp = F * ~Multipoint_Evel::t[1];
+        
+        tmp.resize(__n);
+        Multipoint_Evel::multipoint_evel(1, __n, 1, tmp);
+        for (int i = 1; i <= __n; ++i)
+        {
+            a[i] = 1ll * y[i] * Pre::Inv(((1ll * x[i] * Multipoint_Evel::an[i] % P + con) % P + P) % P) % P;
+        }
+        Inv_evel(1, __n, 1);
+        return ret[1];
+    }
+}
+using Fast_Interpolation::PFI;
+
+int n, m, x[N], y[N];
 
 inline void work()
 {
     poly f;
     read(n);
-    read(m);
-    pin(f, n + 1);
-    for (int i = 1; i <= m; i++)
+    for (int i = 1; i <= n; i++)
     {
-        read(a[i]);
+        read(x[i]);
+        read(y[i]);
     }
-    PMPE(a, f, m, Ans);
-    for (int i = 1; i <= m; i++)
-    {
-        print(Ans[i]);
-        pc(' ');
-    }
+    poly g = PFI(x, y, n);
+    ppri(g, n);
 }
 signed main()
 {
