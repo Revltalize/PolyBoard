@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Duodian Chazhi
+Stirling Number
 
 
 
@@ -205,26 +205,6 @@ namespace Pre
         {
             ny[i] = 1ll * (P - P / i) * ny[P % i] % P;
         }
-        inv[1] = 1;
-        inv[2] = 499122177;
-        inv[4] = 748683265;
-        inv[8] = 873463809;
-        inv[16] = 935854081;
-        inv[32] = 967049217;
-        inv[64] = 982646785;
-        inv[128] = 990445569;
-        inv[256] = 994344961;
-        inv[512] = 996294657;
-        inv[1024] = 997269505;
-        inv[2048] = 997756929;
-        inv[4096] = 998000641;
-        inv[8192] = 998122497;
-        inv[16384] = 998183425;
-        inv[32768] = 998213889;
-        inv[65536] = 998229121;
-        inv[131072] = 998236737;
-        inv[262144] = 998240545;
-        inv[524288] = 998242449;
     }
 }
 
@@ -383,9 +363,9 @@ namespace POLY
         inline poly ArcSin(poly __f);
         inline poly ArcCos(poly __f);
         inline poly ArcTan(poly __f);
-        inline poly AND(poly __f,poly __g);
-        inline poly OR(poly __f,poly __g);
-        inline poly XOR(poly __f,poly __g);
+        inline poly AND(poly __f, poly __g);
+        inline poly OR(poly __f, poly __g);
+        inline poly XOR(poly __f, poly __g);
     }
     using namespace UCPF;
     using namespace PIO;
@@ -497,7 +477,7 @@ namespace POLY
             }
             if (!__)
             {
-                long long invtmp = Pre::inv[n];
+                long long invtmp = Pre::Inv(n);
                 for (register int i = 0; i < n; ++i)
                 {
                     a[i] = a[i] * invtmp % P;
@@ -516,7 +496,7 @@ namespace POLY
                 {
                     for (register int j = 0; j < k; ++j)
                     {
-                        a[i + j] = 1ll*(a[i + j] + 1ll * a[i + j + k] * __ % P)%P;
+                        a[i + j] = 1ll * (a[i + j] + 1ll * a[i + j + k] * __ % P) % P;
                     }
                 }
             }
@@ -532,7 +512,7 @@ namespace POLY
                 {
                     for (register int j = 0; j < k; ++j)
                     {
-                        a[i + j + k] = 1ll*(a[i+j+k] + 1ll * a[i + j] * __ % P)%P;
+                        a[i + j + k] = 1ll * (a[i + j + k] + 1ll * a[i + j] * __ % P) % P;
                     }
                 }
             }
@@ -548,7 +528,7 @@ namespace POLY
                 {
                     for (register int j = 0; j < k; ++j)
                     {
-                        a[i + j] = add(a[i + j] , a[i + j + k]);
+                        a[i + j] = add(a[i + j], a[i + j + k]);
                         a[i + j + k] = (a[i + j] - (a[i + j + k] << 1) % P + P) % P;
                         a[i + j] = 1ll * __ * a[i + j] % P;
                         a[i + j + k] = 1ll * __ * a[i + j + k] % P;
@@ -630,8 +610,6 @@ namespace POLY
             }
             return ans;
         }
-
-
 
         poly operator~() const
         {
@@ -843,10 +821,11 @@ inline poly UCPF::ArcTan(poly __f)
     return __f;
 }
 
-inline poly UCPF::AND(poly __f,poly __g){
+inline poly UCPF::AND(poly __f, poly __g)
+{
     __f.Fwtand(1);
     __g.Fwtand(1);
-    for (register int i = 0; i < __f.n;++i)
+    for (register int i = 0; i < __f.n; ++i)
     {
         __f[i] = (1ll * __f[i] * __g[i] % P);
     }
@@ -855,10 +834,11 @@ inline poly UCPF::AND(poly __f,poly __g){
     return __f;
 }
 
-inline poly UCPF::OR(poly __f,poly __g){
+inline poly UCPF::OR(poly __f, poly __g)
+{
     __f.Fwtor(1);
     __g.Fwtor(1);
-    for (register int i = 0; i < __f.n;++i)
+    for (register int i = 0; i < __f.n; ++i)
     {
         __f[i] = (1ll * __f[i] * __g[i] % P);
     }
@@ -867,10 +847,11 @@ inline poly UCPF::OR(poly __f,poly __g){
     return __f;
 }
 
-inline poly UCPF::XOR(poly __f,poly __g){
+inline poly UCPF::XOR(poly __f, poly __g)
+{
     __f.Fwtxor(1);
     __g.Fwtxor(1);
-    for (register int i = 0; i < __f.n;++i)
+    for (register int i = 0; i < __f.n; ++i)
     {
         __f[i] = 1ll * __f[i] * __g[i] % P;
     }
@@ -1000,7 +981,7 @@ namespace Fast_Interpolation
         F.rev(F.a.begin(), F.a.end());
         F.resize(__n << 1);
         poly tmp = F * ~Multipoint_Evel::t[1];
-        
+
         tmp.resize(__n);
         Multipoint_Evel::multipoint_evel(1, __n, 1, tmp);
         for (int i = 1; i <= __n; ++i)
@@ -1018,11 +999,11 @@ namespace Chirp_Z
     inline int Ci2(int &i)
     {
         register long long k = 1ll * i * (i - 1) / 2;
-        k %= (P-1);
+        k %= (P - 1);
         return k;
     }
     inline poly Chirp_Z(poly __f, int c, int m)
-    {// You can't pass P6800 by this code,because this PolyBoard is limit at 100000
+    { // You can't pass P6800 by this code,because this PolyBoard is limit at 100000
         poly res;
         int __n = __f.n;
         poly R(__n + m), G(__n + m);
@@ -1030,14 +1011,37 @@ namespace Chirp_Z
         for (register int i = 0; i < __n + m - 1; ++i)
         {
             R[__n + m - 2 - i] = 1ll * Pre::Q(c, Ci2(i)) % P;
-            G[i] = 1ll * Pre::Q(c, (P - 1ll - Ci2(i))%P) * __f[i] % P;
+            G[i] = 1ll * Pre::Q(c, (P - 1ll - Ci2(i)) % P) * __f[i] % P;
         }
         poly ans = R * G;
         for (int i = 0; i < m; i++)
         {
-            res.pb(1ll * ans[__n + m - 2 - i] * Pre::Q(c, (P - 1ll - Ci2(i))%P) % P);
+            res.pb(1ll * ans[__n + m - 2 - i] * Pre::Q(c, (P - 1ll - Ci2(i)) % P) % P);
         }
         return res;
+    }
+}
+
+namespace Stirling
+{
+    inline poly row(int __n)
+    {
+        poly f(__n+1), _f(__n+1);
+        f[0] = _f[0] = 1;
+        for (int i = 1; i <= __n; i++)
+        {
+            f[i] = 1ll * f[i - 1] * Pre::Inv(i) % P;
+            _f[i] = f[i];
+        }
+        for (int i = 0; i <= __n;i++)
+        {
+            f[i] = 1ll * f[i] * Pre::Q(i, __n) % P;
+            _f[i] = 1ll * _f[i] * ((i & 1) ? (P - 1) : 1) % P;
+        }
+        f *= _f;
+        f.tp(f.n);
+        f.resize(__n + 1);
+        return f;
     }
 }
 
@@ -1045,17 +1049,8 @@ int n;
 
 inline void work()
 {
-    poly f,g,h;
     read(n);
-    n = (1 << n);
-    pin(f, n);
-    pin(g, n);
-    h = OR(f, g);
-    ppri(h,n);
-    h = AND(f, g);
-    ppri(h,n);
-    h = XOR(f, g);
-    ppri(h,n);
+    ppri(Stirling::row(n),n+1);
 }
 signed main()
 {
