@@ -1,6 +1,6 @@
 /*
 
-POLYBOARD (1.2.0)
+POLYBOARD (1.5.0)
 _____________________________________________
 |                                            |
 |  AUTHER   : Revitalize                     |
@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Sqrt and Pow and Tri.
+ARCTri.
 
 
 
@@ -379,6 +379,9 @@ namespace POLY
         inline poly Sin(poly __f);
         inline poly Cos(poly __f);
         inline poly Tan(poly __f);
+        inline poly ArcSin(poly __f);
+        inline poly ArcCos(poly __f);
+        inline poly ArcTan(poly __f);
     }
     using namespace UCPF;
     using namespace PIO;
@@ -729,7 +732,7 @@ inline poly UCPF::Sqrt(poly __f)
     __f = Ln(__f);
     __f *= B;
     __f = Exp(__f);
-    tmp = Quad::work(tmp, 998244353);
+    tmp = (tmp!=1)?Quad::work(tmp, 998244353):1;
     __f *= tmp;
     return __f;
 }
@@ -747,6 +750,41 @@ inline poly UCPF::Cos(poly __f)
 inline poly UCPF::Tan(poly __f)
 {
     return Sin(__f) * ~Cos(__f);
+}
+
+inline poly UCPF::ArcSin(poly __f)
+{
+    poly __tmp = __f;
+    int __n = __f.n;
+    __f=__f*__f;
+    __f.resize(__n);
+    __f *= (P - 1);
+    __f[0]++;
+    __f = Sqrt(__f);
+    __f = ~__f;
+    __f *= Dx(__tmp);
+    __f.resize(__n);
+    __f = Integ(__f);
+    return __f;
+}
+
+inline poly UCPF::ArcCos(poly __f)
+{
+    return ArcSin(__f) * (P - 1);
+}
+
+inline poly UCPF::ArcTan(poly __f)
+{
+    poly __tmp = __f;
+    int __n = __f.n;
+    __f=__f*__f;
+    __f.resize(__n);
+    __f[0]++;
+    __f = ~__f;
+    __f *= Dx(__tmp);
+    __f.resize(__n);
+    __f = Integ(__f);
+    return __f;
 }
 
 void PIO::pin(poly &f, int __n)
@@ -771,8 +809,6 @@ void PIO::ppri(poly __f, int __n)
     pc('\n');
 }
 
-
-
 int n, m;
 
 inline void work()
@@ -781,7 +817,7 @@ inline void work()
     read(n);
     read(m);
     pin(f, n);
-    ppri(m?Cos(f):Sin(f), n);
+    ppri((!m)?ArcSin(f):ArcTan(f), n);
 }
 signed main()
 {
