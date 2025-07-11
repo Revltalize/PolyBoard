@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Fraction and Mod.
+Log and Exp.
 
 
 
@@ -727,19 +727,16 @@ namespace UCPF // UnClassable PolyFunctions
         return Exp(Ln(__f) * B);
     }
 }
-
+using namespace UCPF;
 
 int n, m;
 
 inline void work()
 {
-    poly f,g;
+    poly f;
     read(n);
-    read(m);
-    pin(f, n+1);
-    pin(g, m+1);
-    ppri(f / g, n-m+1);
-    ppri(f % g, m);
+    pin(f, n);
+    ppri(Sqrt(f), n);
 }
 
 signed main()
