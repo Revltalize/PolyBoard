@@ -50,7 +50,10 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-FWT, Chirp-Z
+Duodian Chazhi
+
+
+
 
 */
 
@@ -259,9 +262,10 @@ namespace Pint
         return delt(__a, __b);
     }
 
-    inline int tp(int x)
+    template <class T>
+    inline T tp(T x)
     {
-        if (x < 0)
+        while (x < 0)
         {
             x += P;
         }
@@ -359,7 +363,7 @@ namespace Quad
 
 namespace POLY
 {
-    int __Binary_reverse[3000005];
+    int __Binary_reverse[2000005];
     class poly;
 
     namespace PIO
@@ -379,6 +383,9 @@ namespace POLY
         inline poly ArcSin(poly __f);
         inline poly ArcCos(poly __f);
         inline poly ArcTan(poly __f);
+        inline poly AND(poly __f,poly __g);
+        inline poly OR(poly __f,poly __g);
+        inline poly XOR(poly __f,poly __g);
     }
     using namespace UCPF;
     using namespace PIO;
@@ -429,7 +436,7 @@ namespace POLY
         {
             for (register int i = 0; i < __n; ++i)
             {
-                Pint::tp(a[i]);
+                a[i] = Pint::tp(a[i]);
             }
         }
 
@@ -498,7 +505,57 @@ namespace POLY
             }
             tp(n);
         }
-
+        inline void Fwtand(int __)
+        {
+            if (!__)
+                __ = -1;
+            for (register int x = 2; x <= n; x <<= 1)
+            {
+                int k = x >> 1;
+                for (register int i = 0; i < n; i += x)
+                {
+                    for (register int j = 0; j < k; ++j)
+                    {
+                        a[i + j] = 1ll*(a[i + j] + 1ll * a[i + j + k] * __ % P)%P;
+                    }
+                }
+            }
+        }
+        inline void Fwtor(int __)
+        {
+            if (!__)
+                __ = -1;
+            for (register int x = 2; x <= n; x <<= 1)
+            {
+                int k = x >> 1;
+                for (register int i = 0; i < n; i += x)
+                {
+                    for (register int j = 0; j < k; ++j)
+                    {
+                        a[i + j + k] = 1ll*(a[i+j+k] + 1ll * a[i + j] * __ % P)%P;
+                    }
+                }
+            }
+        }
+        inline void Fwtxor(int __)
+        {
+            if (!__)
+                __ = B;
+            for (register int x = 2; x <= n; x <<= 1)
+            {
+                int k = x >> 1;
+                for (register int i = 0; i < n; i += x)
+                {
+                    for (register int j = 0; j < k; ++j)
+                    {
+                        a[i + j] = add(a[i + j] , a[i + j + k]);
+                        a[i + j + k] = (a[i + j] - (a[i + j + k] << 1) % P + P) % P;
+                        a[i + j] = 1ll * __ * a[i + j] % P;
+                        a[i + j + k] = 1ll * __ * a[i + j + k] % P;
+                    }
+                }
+            }
+        }
         poly operator*=(const poly &__tmpa)
         {
             poly __tmpmuly = __tmpa;
@@ -573,6 +630,8 @@ namespace POLY
             }
             return ans;
         }
+
+
 
         poly operator~() const
         {
@@ -784,6 +843,42 @@ inline poly UCPF::ArcTan(poly __f)
     return __f;
 }
 
+inline poly UCPF::AND(poly __f,poly __g){
+    __f.Fwtand(1);
+    __g.Fwtand(1);
+    for (register int i = 0; i < __f.n;++i)
+    {
+        __f[i] = (1ll * __f[i] * __g[i] % P);
+    }
+    __f.Fwtand(0);
+    __f.tp(__f.n);
+    return __f;
+}
+
+inline poly UCPF::OR(poly __f,poly __g){
+    __f.Fwtor(1);
+    __g.Fwtor(1);
+    for (register int i = 0; i < __f.n;++i)
+    {
+        __f[i] = (1ll * __f[i] * __g[i] % P);
+    }
+    __f.Fwtor(0);
+    __f.tp(__f.n);
+    return __f;
+}
+
+inline poly UCPF::XOR(poly __f,poly __g){
+    __f.Fwtxor(1);
+    __g.Fwtxor(1);
+    for (register int i = 0; i < __f.n;++i)
+    {
+        __f[i] = 1ll * __f[i] * __g[i] % P;
+    }
+    __f.Fwtxor(0);
+    __f.tp(__f.n);
+    return __f;
+}
+
 void PIO::pin(poly &f, int __n)
 {
     for (register int i = 0; i < __n; ++i)
@@ -905,9 +1000,10 @@ namespace Fast_Interpolation
         F.rev(F.a.begin(), F.a.end());
         F.resize(__n << 1);
         poly tmp = F * ~Multipoint_Evel::t[1];
+        
         tmp.resize(__n);
         Multipoint_Evel::multipoint_evel(1, __n, 1, tmp);
-        for (register int i = 1; i <= __n; i++)
+        for (int i = 1; i <= __n; ++i)
         {
             a[i] = 1ll * y[i] * Pre::Inv(((1ll * x[i] * Multipoint_Evel::an[i] % P + con) % P + P) % P) % P;
         }
@@ -917,7 +1013,7 @@ namespace Fast_Interpolation
 }
 using Fast_Interpolation::PFI;
 
-namespace Transforms
+namespace Chirp_Z
 {
     inline int Ci2(int &i)
     {
@@ -926,7 +1022,7 @@ namespace Transforms
         return k;
     }
     inline poly Chirp_Z(poly __f, int c, int m)
-    {
+    {// You can't pass P6800 by this code,because this PolyBoard is limit at 100000
         poly res;
         int __n = __f.n;
         poly R(__n + m), G(__n + m);
@@ -945,24 +1041,24 @@ namespace Transforms
     }
 }
 
-using namespace Transforms;
-
-int n, m, c;
+int n;
 
 inline void work()
 {
-    poly f;
+    poly f,g,h;
     read(n);
-    read(c);
-    read(m);
-    
+    n = (1 << n);
     pin(f, n);
-    ppri(Chirp_Z(f, c, m), m);
+    pin(g, n);
+    h = OR(f, g);
+    ppri(h,n);
+    h = AND(f, g);
+    ppri(h,n);
+    h = XOR(f, g);
+    ppri(h,n);
 }
 signed main()
 {
-    freopen("A.txt", "r", stdin);
-    freopen("A.out", "w", stdout);
     ios::sync_with_stdio(false);
     cin.tie(0), cout.tie(0);
     Pre::initYG();
