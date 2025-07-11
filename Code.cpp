@@ -50,10 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Duodian Chazhi
-
-
-
+FWT, Chirp-Z
 
 */
 
@@ -362,7 +359,7 @@ namespace Quad
 
 namespace POLY
 {
-    int __Binary_reverse[2000005];
+    int __Binary_reverse[3000005];
     class poly;
 
     namespace PIO
@@ -908,10 +905,9 @@ namespace Fast_Interpolation
         F.rev(F.a.begin(), F.a.end());
         F.resize(__n << 1);
         poly tmp = F * ~Multipoint_Evel::t[1];
-        
         tmp.resize(__n);
         Multipoint_Evel::multipoint_evel(1, __n, 1, tmp);
-        for (int i = 1; i <= __n; ++i)
+        for (register int i = 1; i <= __n; i++)
         {
             a[i] = 1ll * y[i] * Pre::Inv(((1ll * x[i] * Multipoint_Evel::an[i] % P + con) % P + P) % P) % P;
         }
@@ -921,22 +917,52 @@ namespace Fast_Interpolation
 }
 using Fast_Interpolation::PFI;
 
-int n, m, x[N], y[N];
+namespace Transforms
+{
+    inline int Ci2(int &i)
+    {
+        register long long k = 1ll * i * (i - 1) / 2;
+        k %= (P-1);
+        return k;
+    }
+    inline poly Chirp_Z(poly __f, int c, int m)
+    {
+        poly res;
+        int __n = __f.n;
+        poly R(__n + m), G(__n + m);
+        __f.resize(__n + m - 1);
+        for (register int i = 0; i < __n + m - 1; ++i)
+        {
+            R[__n + m - 2 - i] = 1ll * Pre::Q(c, Ci2(i)) % P;
+            G[i] = 1ll * Pre::Q(c, (P - 1ll - Ci2(i))%P) * __f[i] % P;
+        }
+        poly ans = R * G;
+        for (int i = 0; i < m; i++)
+        {
+            res.pb(1ll * ans[__n + m - 2 - i] * Pre::Q(c, (P - 1ll - Ci2(i))%P) % P);
+        }
+        return res;
+    }
+}
+
+using namespace Transforms;
+
+int n, m, c;
 
 inline void work()
 {
     poly f;
     read(n);
-    for (int i = 1; i <= n; i++)
-    {
-        read(x[i]);
-        read(y[i]);
-    }
-    poly g = PFI(x, y, n);
-    ppri(g, n);
+    read(c);
+    read(m);
+    
+    pin(f, n);
+    ppri(Chirp_Z(f, c, m), m);
 }
 signed main()
 {
+    freopen("A.txt", "r", stdin);
+    freopen("A.out", "w", stdout);
     ios::sync_with_stdio(false);
     cin.tie(0), cout.tie(0);
     Pre::initYG();
