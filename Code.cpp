@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Stirling Number
+Pow(Hard Vision)
 
 
 
@@ -58,6 +58,7 @@ Stirling Number
 */
 
 #include <bits/stdc++.h>
+
 using namespace std;
 namespace IO
 {
@@ -366,6 +367,7 @@ namespace POLY
         inline poly AND(poly __f, poly __g);
         inline poly OR(poly __f, poly __g);
         inline poly XOR(poly __f, poly __g);
+        inline poly Pow(poly __f, int __k1, int __k2, int kk);
     }
     using namespace UCPF;
     using namespace PIO;
@@ -678,17 +680,53 @@ namespace POLY
             return res /= g;
         }
 
-        poly operator%=(poly g) const
+        poly operator%=(poly g)
         {
             poly q = *this / g;
             q.resize(n - g.n + 1);
-            return *this - q * g;
+            return *this = *this - q * g;
         }
 
         poly operator%(poly g) const
         {
             poly res = *this;
             return res %= g;
+        }
+
+        poly operator<<=(int g)
+        {
+            poly res;
+            for (register int i = 1; i <= g; ++i)
+            {
+                res.pb(0);
+            }
+            for (register int i = 0; i < n; ++i)
+            {
+                res.pb(a[i]);
+            }
+            return *this = res;
+        }
+
+        poly operator<<(int g) const
+        {
+            poly res = *this;
+            return res <<= g;
+        }
+
+        poly operator>>=(int g)
+        {
+            poly res;
+            for (register int i = g; i < n; ++i)
+            {
+                res.pb(a[i]);
+            }
+            return *this = res;
+        }
+
+        poly operator>>(int g) const
+        {
+            poly res = *this;
+            return res >>= g;
         }
 
         poly operator^=(int g)
@@ -860,6 +898,34 @@ inline poly UCPF::XOR(poly __f, poly __g)
     return __f;
 }
 
+inline poly UCPF::Pow(poly __f, int __k1, int __k2, int kk)
+{
+    int __fir;
+    for (register int i = 0; i < __f.n; ++i)
+    {
+        if (__f.a[i])
+        {
+            __fir = i;
+            break;
+        }
+    }
+    if (1ll * kk * __fir >= 1ll * __f.n)
+    {
+        __f.a.clear();
+        __f.resize(__f.n);
+        return __f;
+    }
+    int con = __f.a[__fir];
+    __f >>= __fir;
+    __f /= con;
+    __f = Ln(__f);
+    __f *= __k2;
+    __f = Exp(__f);
+    __f *= Pre::Q(con, __k1);
+    __f <<= (__fir * __k2);
+    return __f;
+}
+
 void PIO::pin(poly &f, int __n)
 {
     for (register int i = 0; i < __n; ++i)
@@ -881,6 +947,8 @@ void PIO::ppri(poly __f, int __n)
     }
     pc('\n');
 }
+
+#ifdef PMPE
 
 namespace Multipoint_Evel
 {
@@ -994,6 +1062,8 @@ namespace Fast_Interpolation
 }
 using Fast_Interpolation::PFI;
 
+#endif
+
 namespace Chirp_Z
 {
     inline int Ci2(int &i)
@@ -1021,19 +1091,22 @@ namespace Chirp_Z
         return res;
     }
 }
+#define STIRLING ss
+#ifdef STIRLING
 
 namespace Stirling
 {
+    // In fact, if you want to pass the problems in luogu,you have to change the modulo.
     inline poly row(int __n)
     {
-        poly f(__n+1), _f(__n+1);
+        poly f(__n + 1), _f(__n + 1);
         f[0] = _f[0] = 1;
         for (int i = 1; i <= __n; i++)
         {
             f[i] = 1ll * f[i - 1] * Pre::Inv(i) % P;
             _f[i] = f[i];
         }
-        for (int i = 0; i <= __n;i++)
+        for (int i = 0; i <= __n; i++)
         {
             f[i] = 1ll * f[i] * Pre::Q(i, __n) % P;
             _f[i] = 1ll * _f[i] * ((i & 1) ? (P - 1) : 1) % P;
@@ -1044,21 +1117,52 @@ namespace Stirling
         return f;
     }
 
-    inline poly column(int __n)
+    poly t[N << 1];
+    void Dev_Mul(int l, int r, int p)
     {
-        
+        if (l == r)
+        {
+            t[p].pb(1ll);
+            t[p].pb(P-l);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        Dev_Mul(l, mid, p << 1);
+        Dev_Mul(mid + 1, r, p << 1 | 1);
+        t[p] = t[p << 1] * t[p << 1 | 1];
+    }
+
+    inline poly column(int __k, int __n)
+    {
+        poly ans;
+        if(__k>__n)
+        {
+            ans.resize(__n+1);
+            return ans;
+        }
+        Dev_Mul(1, __k, 1);
+        t[1].resize(__n + 1);
+        ans = (~t[1]) << __k;
+        ans.resize(__n + 1);
+        return ans;
     }
 }
 
-int n;
+#endif
+
+int n, k;
 
 inline void work()
 {
+    poly f;
     read(n);
-    ppri(Stirling::row(n),n+1);
+    read(k);
+    ppri(Stirling::column(k, n), n + 1);
 }
 signed main()
 {
+    // freopen("P.txt", "r", stdin );
+    // freopen("I.out", "w", stdout);
     ios::sync_with_stdio(false);
     cin.tie(0), cout.tie(0);
     Pre::initYG();
