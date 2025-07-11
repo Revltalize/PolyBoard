@@ -50,7 +50,7 @@ UCPF ----------------------- Unclassable Polyfunctions
     | Sqrt --------------------- Get Sqrt
 
 Update:
-Log and Exp.
+Sqrt
 
 
 
@@ -458,10 +458,8 @@ namespace POLY
             return (__tmp -= __tmpa);
         }
 
-    private:
         inline void NTT(bool __)
         {
-            
             for (register int i = 0; i < n; ++i)
             {
                 if (i < __Binary_reverse[i])
@@ -492,7 +490,6 @@ namespace POLY
             tp(n);
         }
 
-    public:
         poly operator*=(const poly &__tmpa)
         {
             poly __tmpmuly = __tmpa;
@@ -722,9 +719,41 @@ namespace UCPF // UnClassable PolyFunctions
         return ans;
     }
 
-    inline poly Sqrt(poly &__f)
+    inline poly Sqrt_slow(poly __f)
     {
         return Exp(Ln(__f) * B);
+    }
+    inline poly Sqrt(poly __f){
+        int cst = __f.a[0];
+
+        poly ans;
+        int dep = 1;
+        ans.pb(Quad::work(cst,P));
+        while (dep < __f.n)
+        {       
+            int len = 1, L = 0;
+            while (len < (__f.n << 1))
+            {
+                len <<= 1;
+                L++;
+            }
+            for (register int i = 0; i < len; ++i)
+            {
+                __Binary_reverse[i] = (__Binary_reverse[i >> 1] >> 1) | ((i & 1) << (L - 1));
+            }
+            __f.resize(len);
+            __f.NTT(1);
+            ans.resize(len);
+            ans.NTT(1);
+            for (register int i = 0; i < len; ++i)
+                ans[i] = 1ll * ans[i] * (2ll - 1ll * __f[i] * ans[i] % P + P) % P;
+            ans.NTT(0);
+            ans.tp(ans.n);
+            ans.resize(dep << 1);
+            dep <<= 1;
+        }
+        ans.resize(__f.n);
+        return ans;
     }
 }
 using namespace UCPF;
