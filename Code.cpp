@@ -162,7 +162,7 @@ using IO::print;
 using IO::pstr;
 using IO::read;
 
-const constexpr int P = 998244353, Y = 3, I = 332748118, B = (P + 1) >> 1, N = 600005, _I_=86583718;
+const constexpr int P = 998244353, Y = 3, I = 332748118, B = (P + 1) >> 1, N = 600005, _I_ = 86583718;
 
 namespace Pre
 {
@@ -282,8 +282,8 @@ using namespace Pint;
 mt19937 rnd(time(0));
 namespace Quad
 {
-    int t, n, p=998244353, ii;
-    
+    int t, n, p = 998244353, ii;
+
     struct NTC
     {
         int Re, Im;
@@ -309,7 +309,7 @@ namespace Quad
         }
         return __res % __p;
     }
-    
+
     inline NTC q(NTC __a, int __b, int &__p)
     {
         NTC __res = {1, 0};
@@ -657,7 +657,7 @@ namespace POLY
             return res %= g;
         }
 
-        poly operator^=(int g) 
+        poly operator^=(int g)
         {
             *this = Ln(*this);
             *this *= g;
@@ -667,7 +667,7 @@ namespace POLY
 
         poly operator^(int g) const
         {
-            poly res=*this;
+            poly res = *this;
             return res ^= g;
         }
     };
@@ -732,14 +732,14 @@ inline poly UCPF::Sqrt(poly __f)
     __f = Ln(__f);
     __f *= B;
     __f = Exp(__f);
-    tmp = (tmp!=1)?Quad::work(tmp, 998244353):1;
+    tmp = (tmp != 1) ? Quad::work(tmp, 998244353) : 1;
     __f *= tmp;
     return __f;
 }
 
 inline poly UCPF::Sin(poly __f)
 {
-    return (Exp(__f * _I_) - Exp(__f * (P - _I_)))*B*Pre::Inv(_I_);
+    return (Exp(__f * _I_) - Exp(__f * (P - _I_))) * B * Pre::Inv(_I_);
 }
 
 inline poly UCPF::Cos(poly __f)
@@ -756,7 +756,7 @@ inline poly UCPF::ArcSin(poly __f)
 {
     poly __tmp = __f;
     int __n = __f.n;
-    __f=__f*__f;
+    __f = __f * __f;
     __f.resize(__n);
     __f *= (P - 1);
     __f[0]++;
@@ -777,7 +777,7 @@ inline poly UCPF::ArcTan(poly __f)
 {
     poly __tmp = __f;
     int __n = __f.n;
-    __f=__f*__f;
+    __f = __f * __f;
     __f.resize(__n);
     __f[0]++;
     __f = ~__f;
@@ -809,20 +809,87 @@ void PIO::ppri(poly __f, int __n)
     pc('\n');
 }
 
-int n, m;
+namespace Multipoint_Evel
+{
+    poly t[N << 1];
+    int an[N];
+    void build(int l, int r, int p, int *a)
+    {
+        if (l == r)
+        {
+            t[p].pb(1ll);
+            t[p].pb(P - a[l]);
+            return;
+        }
+        int mid = (l + r) >> 1;
+        build(l, mid, p << 1, a);
+        build(mid + 1, r, p << 1 | 1, a);
+        t[p] = t[p << 1] * t[p << 1 | 1];
+    }
+
+    void multipoint_evel(int l, int r, int p, poly __f)
+    {
+
+        if (l == r)
+        {
+            an[l] = __f[0];
+            return;
+        }
+        poly r1 = __f & t[p << 1 | 1], r2 = __f & t[p << 1];
+        int mid = (l + r) >> 1;
+        multipoint_evel(l, mid, p << 1, r1);
+        multipoint_evel(mid + 1, r, p << 1 | 1, r2);
+    }
+
+    void PMPE(int *val, poly __f, int mm, int *ans)
+    {
+        int con = __f[0];
+        int lm = mm, nn = __f.n;
+        if (nn < mm - 1)
+        {
+            __f.resize(mm + 1);
+        }
+        else if (nn >= mm - 1)
+        {
+            mm = Vmax(mm, nn - 1);
+        }   
+        build(1, mm, 1, val);
+        __f.rev(__f.a.begin(), __f.a.end());
+        __f.resize(nn << 1);
+        poly tmp = __f * ~t[1];
+        tmp.resize(mm);
+        multipoint_evel(1, mm, 1, tmp);
+        for (int i = 1; i <= lm; i++)
+        {
+            ans[i] = ((1ll * val[i] * an[i] % P + con) % P + P) % P;
+        }
+    }
+}
+using namespace Multipoint_Evel;
+
+int n, m, a[N], Ans[N];
 
 inline void work()
 {
     poly f;
     read(n);
     read(m);
-    pin(f, n);
-    ppri((!m)?ArcSin(f):ArcTan(f), n);
+    pin(f, n + 1);
+    for (int i = 1; i <= m; i++)
+    {
+        read(a[i]);
+    }
+    PMPE(a, f, m, Ans);
+    for (int i = 1; i <= m; i++)
+    {
+        print(Ans[i]);
+        pc(' ');
+    }
 }
 signed main()
 {
-    //ios::sync_with_stdio(false);
-    //cin.tie(0), cout.tie(0);
+    ios::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
     Pre::initYG();
     work();
     return 0;
