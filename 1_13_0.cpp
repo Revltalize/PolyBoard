@@ -1023,11 +1023,11 @@ namespace Multipoint_Evel
     {
         int con = __f[0];
         int lm = mm, nn = __f.n;
-        if (nn < mm - 1)
+        if (nn <= mm - 1)
         {
             __f.resize(mm + 1);
         }
-        else if (nn >= mm - 1)
+        else if (nn >= mm)
         {
             mm = Vmax(mm, nn - 1);
         }
@@ -1241,9 +1241,11 @@ namespace Staling
 
 namespace FFP
 {
-    poly t[N << 1],ans[N<<1];
     int f[N], a[N], r[N];
+    
+    #ifdef PTFFP
 
+    poly t[N << 1],ans[N<<1];
     void Dev_Mul(int l, int r, int p,poly &a)
     {
         if(l==r)
@@ -1260,45 +1262,30 @@ namespace FFP
         ans[p] = ans[p << 1] + t[p << 1] * ans[p << 1 | 1];
     }
 
-    void Dev_Mul2(int l,int r,int p,poly a)
-    {
-        if(l==r)
-        {
-            t[p].pb(P - l);
-            t[p].pb(1);
-            ans[p].pb(a[l]);
-            return ;
-        }
-        int mid = (l + r) >> 1;
-        poly __x, __y;
-        Dev_Mul2(l, mid, p << 1, a);
-        Dev_Mul2(mid + 1, r, p << 1 | 1, a);
-        t[p] = t[p << 1] * t[p << 1 | 1];
-    }
-
     inline poly PTFFP(poly __f)
     {
         Dev_Mul(0, __f.n-1, 1,__f);
         return ans[1];
     }
 
+    #endif 
     inline poly FFPTP(poly __f)
     {
         poly __g, __h;
         f[0] = 1;
-        for (int i = 1;i<=__f.n;i++) 
+        for (int i = 1;i<=__f.n+1;i++) 
         {
-            f[i] = 1ll * f[i - 1] * i % P;
+            f[i] = 1ll * f[i - 1] * Pre::Inv(i) % P;
             a[i] = i - 1;
         }
-        PMPE(a, __f, __f.n, r);
+        PMPE(a, __f, __f.n+1, r);
         for (int i = 0; i <= __f.n;i++)
         {
-            __g.pb(1ll * r[i] * Pre::Inv(f[i]) % P);
-            __h.pb(1ll * ((i&1)?(P-1):1) * Pre::Inv(f[i]) % P);
+            __g.pb(1ll * r[i+1] * f[i] % P);
+            __h.pb(1ll * ((i&1)?(P-1):1) * f[i] % P);
         }
         __g *= __h;
-        __g.resize(__f.n);
+        __g.resize(__f.n+1);
         return __g;
     }
 }
@@ -1312,7 +1299,7 @@ inline void work()
     poly f;
     read(n);
     pin(f,n);
-    ppri(FFP::PTFFP(f), n);
+    ppri(FFP::FFPTP(f), n);
 }
 signed main()
 {
